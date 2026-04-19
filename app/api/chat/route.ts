@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 
 // Use environment variable for security
-const PUTER_TOKEN = process.env.PUTER_TOKEN;
+const API_TOKEN = process.env.PUTER_TOKEN;
 
 export async function POST(req: Request) {
   try {
-    if (!PUTER_TOKEN) {
+    if (!API_TOKEN) {
         return NextResponse.json({ error: 'Server configuration missing' }, { status: 500 });
     }
 
@@ -16,12 +16,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
     }
 
-    // Call Puter AI via direct REST API mimicking the puter.js client perfectly
-    const puterResponse = await fetch('https://api.puter.com/drivers/call', {
+    // Call AI core via direct REST API
+    const aiResponse = await fetch('https://api.puter.com/drivers/call', {
       method: 'POST',
       headers: {
         'Content-Type': 'text/plain;actually=json',
-        'Authorization': `Bearer ${PUTER_TOKEN}`,
+        'Authorization': `Bearer ${API_TOKEN}`,
         'Origin': 'https://puter.com',
         'Referer': 'https://puter.com/'
       },
@@ -33,18 +33,18 @@ export async function POST(req: Request) {
             messages: [{ content: prompt }],
             model: model || 'qwen/qwen3.6-plus'
         },
-        auth_token: PUTER_TOKEN
+        auth_token: API_TOKEN
       })
     });
 
-    if (!puterResponse.ok) {
-       const errText = await puterResponse.text();
-       throw new Error(`Puter API returned ${puterResponse.status}: ${errText}`);
+    if (!aiResponse.ok) {
+       const errText = await aiResponse.text();
+       throw new Error(`AI Core returned ${aiResponse.status}: ${errText}`);
     }
 
-    const data = await puterResponse.json();
+    const data = await aiResponse.json();
     
-    // Parse the response format from Puter Drivers API
+    // Parse the response format
     let responseText = '';
     const result = data.result || data;
 
@@ -66,7 +66,7 @@ export async function POST(req: Request) {
     });
 
   } catch (error: any) {
-    console.error("Puter API Error:", error);
+    console.error("AI Core Error:", error);
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 }

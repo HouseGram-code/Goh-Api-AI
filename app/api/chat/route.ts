@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 
-// Use environment variable for security
-const API_TOKEN = process.env.PUTER_TOKEN;
+// Use environment variable for security, with hardcoded fallback provided by user
+const API_TOKEN = process.env.PUTER_TOKEN || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZ3VpIiwidmVyc2lvbiI6IjAuMC4wIiwidXVpZCI6ImVmNDZkNjNkLWNjNjQtNDZiMy04NzkwLTE1ZjAxMzdlNmI2YyIsInVzZXJfdWlkIjoiMjAxOGRiOWUtZThiZi00NmYwLWI5MWYtNGY3NmRiNTM3MzdhIiwiaWF0IjoxNzc2NTE5NjA4fQ.WEYpNU7xlO63GKfz5fd9zEinx5CPdCBXt3kf_Q_FgUk";
 
 export async function POST(req: Request) {
   try {
+    // If neither env nor fallback is set
     if (!API_TOKEN) {
         return NextResponse.json({ error: 'Server configuration missing' }, { status: 500 });
     }

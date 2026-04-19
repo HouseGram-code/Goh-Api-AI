@@ -88,11 +88,26 @@ export default function Home() {
     setMenuOpen(false);
   };
 
+  const [isGeneratingKey, setIsGeneratingKey] = useState(false);
+
   const generateKey = async () => {
     if (!user) return;
-    const newKey = 'goh_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    await setDoc(doc(db, 'users', user.uid), { apiKey: newKey }, { merge: true });
-    await setDoc(doc(db, 'apiKeys', newKey), { uid: user.uid });
+    setIsGeneratingKey(true);
+    try {
+      const newKey = 'goh_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      
+      // Update user profile with the key
+      await setDoc(doc(db, 'users', user.uid), { apiKey: newKey }, { merge: true });
+      // Create the reverse mapping for quick lookups
+      await setDoc(doc(db, 'apiKeys', newKey), { uid: user.uid });
+      
+      setMenuOpen(false);
+    } catch (error: any) {
+      console.error("Key generation failed:", error);
+      alert(lang === 'ru' ? `Не удалось создать ключ: ${error.message}` : `Failed to generate key: ${error.message}`);
+    } finally {
+      setIsGeneratingKey(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -442,14 +457,20 @@ print(response.json())`;
                              <button onClick={() => { navigator.clipboard.writeText(userData.apiKey); setCopied(true); setTimeout(() => setCopied(false), 2000); }} className="flex-1 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
                                {copied ? t.copied : t.copy}
                              </button>
-                             <button onClick={generateKey} className="p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-all">
-                               <RefreshCw className="w-4 h-4 text-slate-400" />
+                             <button onClick={generateKey} disabled={isGeneratingKey} className="p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-all disabled:opacity-50">
+                               <RefreshCw className={`w-4 h-4 text-slate-400 ${isGeneratingKey ? 'animate-spin' : ''}`} />
                              </button>
                            </div>
                          </div>
                        ) : (
-                         <button onClick={generateKey} className="w-full py-4 bg-blue-600 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl hover:scale-105 active:scale-95 transition-all">
-                           {t.genKey}
+                         <button 
+                           onClick={generateKey} 
+                           disabled={isGeneratingKey}
+                           className="w-full py-4 bg-blue-600 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                         >
+                           {isGeneratingKey ? (
+                             <RefreshCw className="w-4 h-4 animate-spin" />
+                           ) : t.genKey}
                          </button>
                        )}
                     </div>

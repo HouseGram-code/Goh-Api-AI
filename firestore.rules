@@ -15,21 +15,21 @@ service cloud.firestore {
 
     // --- User Profiles ---
     match /users/{userId} {
-      // Allow read for authenticated users (to verify stats)
-      allow read: if isSignedIn();
-      
-      // Allow creation/update by owner or server
-      allow write: if isOwner(userId) || request.auth == null;
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
     }
 
     // --- API Key Mappings ---
     match /apiKeys/{key} {
-      // Allow read by anyone (primarily for the API server)
       allow read: if true;
-      
-      // Create/Delete by owner
-      allow create: if isSignedIn() && incoming().uid == request.auth.uid;
-      allow delete: if isSignedIn() && existing().uid == request.auth.uid;
+      allow write: if isSignedIn() && (
+        (request.method == 'create' && request.resource.data.uid == request.auth.uid) ||
+        (request.method == 'delete' && resource.data.uid == request.auth.uid)
+      );
+    }
+
+    // --- Connectivity Test Path ---
+    match /_internal_/connection_test {
+      allow read, write: if true;
     }
   }
 }

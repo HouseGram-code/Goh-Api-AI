@@ -47,20 +47,28 @@ export default function Home() {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
+        console.log("User is authenticated as:", currentUser.uid);
         const userRef = doc(db, 'users', currentUser.uid);
+        
+        // Initial silent attempt to check profile
         try {
           const snap = await getDoc(userRef);
           if (!snap.exists()) {
-            console.log("Creating new user doc...");
+            console.log("Creating new user profile doc...");
             await setDoc(userRef, {
               email: currentUser.email || '',
               dailyRequests: 0,
               lastReset: new Date().toISOString(),
-              apiKey: "" // Explicitly initialize
+              apiKey: "",
+              createdAt: new Date().toISOString()
             });
+            console.log("Profile created successfully.");
           }
-        } catch (e) {
-          console.error("Auth init error", e);
+        } catch (e: any) {
+          console.error("Profile check/create failed:", e.code, e.message);
+          if (e.code === 'permission-denied') {
+            console.warn("Permission denied during initialization. This might happen if auth token is still refreshing.");
+          }
         }
 
         const unsubDoc = onSnapshot(userRef, (docSnap) => {

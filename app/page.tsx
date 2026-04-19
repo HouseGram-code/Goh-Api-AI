@@ -50,10 +50,12 @@ export default function Home() {
         try {
           const snap = await getDoc(userRef);
           if (!snap.exists()) {
+            console.log("Creating new user doc...");
             await setDoc(userRef, {
-              email: currentUser.email,
+              email: currentUser.email || '',
               dailyRequests: 0,
-              lastReset: new Date().toISOString()
+              lastReset: new Date().toISOString(),
+              apiKey: "" // Explicitly initialize
             });
           }
         } catch (e) {
@@ -95,11 +97,15 @@ export default function Home() {
     setIsGeneratingKey(true);
     try {
       const newKey = 'goh_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      console.log("Generating new key:", newKey);
       
       // Update user profile with the key
       await setDoc(doc(db, 'users', user.uid), { apiKey: newKey }, { merge: true });
+      console.log("User profile updated");
+      
       // Create the reverse mapping for quick lookups
       await setDoc(doc(db, 'apiKeys', newKey), { uid: user.uid });
+      console.log("API key mapping created");
       
       setMenuOpen(false);
     } catch (error: any) {

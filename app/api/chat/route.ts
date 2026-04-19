@@ -1,10 +1,14 @@
 import { NextResponse } from 'next/server';
 
-// Load the auth token provided by the user
-const PUTER_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZ3VpIiwidmVyc2lvbiI6IjAuMC4wIiwidXVpZCI6ImVmNDZkNjNkLWNjNjQtNDZiMy04NzkwLTE1ZjAxMzdlNmI2YyIsInVzZXJfdWlkIjoiMjAxOGRiOWUtZThiZi00NmYwLWI5MWYtNGY3NmRiNTM3MzdhIiwiaWF0IjoxNzc2NTE5NjA4fQ.WEYpNU7xlO63GKfz5fd9zEinx5CPdCBXt3kf_Q_FgUk";
+// Use environment variable for security
+const PUTER_TOKEN = process.env.PUTER_TOKEN;
 
 export async function POST(req: Request) {
   try {
+    if (!PUTER_TOKEN) {
+        return NextResponse.json({ error: 'Server configuration missing' }, { status: 500 });
+    }
+
     const body = await req.json();
     const { prompt, model } = body;
 

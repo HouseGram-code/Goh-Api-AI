@@ -45,7 +45,7 @@ export default function Home() {
   const basicCode = `import requests
 
 # Goh API AI - Keyless Puter.js Wrapper
-API_URL = "https://<your-domain>/api/chat"
+API_URL = "https://goh-api-ai-v5yn.vercel.app/api/chat"
 
 def get_ai_response(prompt: str, model="qwen/qwen3.6-plus"):
     payload = {
@@ -72,7 +72,7 @@ import requests
 #    pip install pyTelegramBotAPI requests
 
 TELEGRAM_BOT_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"
-API_URL = "https://<your-domain>/api/chat"
+API_URL = "https://goh-api-ai-v5yn.vercel.app/api/chat"
 
 bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
 

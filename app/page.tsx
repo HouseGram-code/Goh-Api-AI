@@ -74,7 +74,7 @@ export default function Home() {
   const [showRules, setShowRules] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
-  const isUnlimited = userData?.email === "warek2508@gmail.com";
+  const isUnlimited = userData?.email?.toLowerCase() === "warek2508@gmail.com";
 
   useEffect(() => {
     testFirebaseConnection();

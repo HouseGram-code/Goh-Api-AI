@@ -121,8 +121,8 @@ export default function Home() {
   const translations = {
     ru: {
       appName: 'GOH NEURAL',
-      test: 'Терминал',
-      dash: 'Профиль',
+      chat: 'Терминал',
+      dashboard: 'Профиль',
       docs: 'Доки',
       usage: 'Использование',
       ofLimit: 'запросов из 5',
@@ -144,8 +144,8 @@ export default function Home() {
     },
     en: {
       appName: 'GOH NEURAL',
-      test: 'Terminal',
-      dash: 'Profile',
+      chat: 'Terminal',
+      dashboard: 'Profile',
       docs: 'Docs',
       usage: 'Usage',
       ofLimit: 'requests of 5',
@@ -215,8 +215,8 @@ print(response.json())`;
         <nav className="flex-1 px-4 py-2 hidden md:block">
            <div className="space-y-1">
              {[
-               { id: 'chat', label: t.test, icon: MessageSquare },
-               { id: 'dashboard', label: t.dash, icon: LayoutDashboard },
+               { id: 'chat', label: t.chat, icon: MessageSquare },
+               { id: 'dashboard', label: t.dashboard, icon: LayoutDashboard },
                { id: 'docs', label: t.docs, icon: TerminalIcon },
              ].map((tab) => (
                 <button

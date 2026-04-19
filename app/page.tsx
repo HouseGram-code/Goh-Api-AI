@@ -8,7 +8,7 @@ import {
   MessageSquare, Settings, LayoutDashboard, Terminal as TerminalIcon,
   ChevronRight, AlertCircle, Info, ChevronDown
 } from 'lucide-react';
-import { auth, db } from '../lib/firebase';
+import { auth, db, testFirebaseConnection } from '../lib/firebase';
 import { signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, onSnapshot, setDoc, getDoc } from 'firebase/firestore';
 
@@ -43,6 +43,7 @@ export default function Home() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    testFirebaseConnection();
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
@@ -66,14 +67,23 @@ export default function Home() {
           if (docSnap.exists()) {
             setUserData(docSnap.data());
           }
+        }, (error) => {
+          console.error("Snapshot error:", error);
+          if (error.message.includes('permissions')) {
+             alert(lang === 'ru' ? "Ошибка доступа к данным. Проверьте консоль Firebase." : "Data access error. Check Firebase console.");
+          }
         });
-        return () => unsubDoc();
+        
+        // Correctly handle cleanup
+        return () => {
+          unsubDoc();
+        };
       } else {
         setUserData(null);
       }
     });
     return () => unsubscribe();
-  }, []);
+  }, [lang]);
 
   const login = async () => {
     try {
@@ -90,27 +100,49 @@ export default function Home() {
     setMenuOpen(false);
   };
 
+  useEffect(() => {
+    console.log("Auth State Changed - User:", user?.uid);
+  }, [user]);
+
+  useEffect(() => {
+    console.log("UserData Updated:", userData);
+  }, [userData]);
+
   const [isGeneratingKey, setIsGeneratingKey] = useState(false);
 
   const generateKey = async () => {
-    if (!user) return;
+    console.log("generateKey triggered");
+    // Immediate feedback for mobile users to confirm click
+    if (typeof window !== 'undefined') {
+       alert(lang === 'ru' ? "Начинаю создание ключа..." : "Starting key generation...");
+    }
+    
+    if (!user) {
+      console.warn("generateKey: No user found");
+      return;
+    }
+    
     setIsGeneratingKey(true);
     try {
       const newKey = 'goh_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      console.log("Generating new key:", newKey);
+      console.log("Attempting to generate key:", newKey);
       
-      // Update user profile with the key
+      // Step 1: Update API Keys mapping FIRST (to ensure it works before updating user)
+      await setDoc(doc(db, 'apiKeys', newKey), { 
+        uid: user.uid,
+        createdAt: new Date().toISOString()
+      });
+      console.log("API Key mapping created successfully");
+
+      // Step 2: Update user profile
       await setDoc(doc(db, 'users', user.uid), { apiKey: newKey }, { merge: true });
-      console.log("User profile updated");
-      
-      // Create the reverse mapping for quick lookups
-      await setDoc(doc(db, 'apiKeys', newKey), { uid: user.uid });
-      console.log("API key mapping created");
+      console.log("User profile updated successfully");
       
       setMenuOpen(false);
+      alert(lang === 'ru' ? "Ключ успешно создан!" : "Key generated successfully!");
     } catch (error: any) {
-      console.error("Key generation failed:", error);
-      alert(lang === 'ru' ? `Не удалось создать ключ: ${error.message}` : `Failed to generate key: ${error.message}`);
+      console.error("CRITICAL: Key generation failed", error);
+      alert(lang === 'ru' ? `ОШИБКА: ${error.message}` : `ERROR: ${error.message}`);
     } finally {
       setIsGeneratingKey(false);
     }
@@ -450,7 +482,7 @@ print(response.json())`;
 
                     {/* Key Management Card */}
                     <div className="bg-[#080812] border border-white/5 rounded-[2.5rem] p-10 flex flex-col items-center text-center justify-center relative overflow-hidden group">
-                       <div className="absolute inset-0 bg-blue-600/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                       <div className="absolute inset-0 bg-blue-600/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                        <Key className="w-12 h-12 text-slate-800 mb-6 group-hover:text-blue-500/50 transition-colors" />
                        <h3 className="text-xl font-bold mb-8">{t.apiKey}</h3>
                        
@@ -472,7 +504,7 @@ print(response.json())`;
                          <button 
                            onClick={generateKey} 
                            disabled={isGeneratingKey}
-                           className="w-full py-4 bg-blue-600 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                           className="w-full py-4 bg-blue-600 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2 relative z-50 pointer-events-auto"
                          >
                            {isGeneratingKey ? (
                              <RefreshCw className="w-4 h-4 animate-spin" />

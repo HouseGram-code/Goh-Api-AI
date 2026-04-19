@@ -97,13 +97,23 @@ export async function POST(req: Request) {
       })
     });
 
-    if (!aiResponse.ok) throw new Error('AI Provider error');
+    if (!aiResponse.ok) {
+      const errorText = await aiResponse.text();
+      console.error("AI Provider error details:", errorText);
+      throw new Error(`AI Provider error: ${aiResponse.status} ${aiResponse.statusText}`);
+    }
     
     const data = await aiResponse.json();
+    console.log("AI Response data received");
     const responseText = data.result?.message?.content || data.result || 'No response from core';
 
     // Increment usage
-    await setDoc(doc(db, 'users', uid), { dailyRequests: (userData.dailyRequests || 0) + 1 }, { merge: true });
+    try {
+      await setDoc(doc(db, 'users', uid), { dailyRequests: (userData.dailyRequests || 0) + 1 }, { merge: true });
+    } catch (dbError: any) {
+      console.error("Database increment error:", dbError);
+      // We don't throw here to still return the AI response to the user
+    }
 
     return NextResponse.json({ 
         success: true, 
@@ -112,7 +122,11 @@ export async function POST(req: Request) {
     });
 
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("CRITICAL API ROUTE ERROR:", error);
+    return NextResponse.json({ 
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined 
+    }, { status: 500 });
   }
 }
 

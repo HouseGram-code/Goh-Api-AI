@@ -54,6 +54,9 @@ export async function POST(req: Request) {
     const now = new Date();
     const lastReset = new Date(userData.lastReset || now);
     
+    // Check if user has unlimited access
+    const isUnlimited = userData.email === 'veraloktushina1958@gmail.com';
+
     // Daily Reset Logic
     if (now.toDateString() !== lastReset.toDateString()) {
         userData.dailyRequests = 0;
@@ -61,8 +64,8 @@ export async function POST(req: Request) {
         await setDoc(doc(db, 'users', uid), { dailyRequests: 0, lastReset: now.toISOString() }, { merge: true });
     }
 
-    // Daily Limit enforcement: 5 requests
-    if (userData.dailyRequests >= 5) {
+    // Daily Limit enforcement: 5 requests (skip for unlimited users)
+    if (!isUnlimited && userData.dailyRequests >= 5) {
         return NextResponse.json({ error: 'Daily limit reached (5/5 requests). Upgrade your plan at GOH AI.' }, { status: 429 });
     }
 
@@ -107,9 +110,11 @@ export async function POST(req: Request) {
     console.log("AI Response data received");
     const responseText = data.result?.message?.content || data.result || 'No response from core';
 
-    // Increment usage
+    // Increment usage (skip for unlimited users)
     try {
-      await setDoc(doc(db, 'users', uid), { dailyRequests: (userData.dailyRequests || 0) + 1 }, { merge: true });
+      if (!isUnlimited) {
+        await setDoc(doc(db, 'users', uid), { dailyRequests: (userData.dailyRequests || 0) + 1 }, { merge: true });
+      }
     } catch (dbError: any) {
       console.error("Database increment error:", dbError);
       // We don't throw here to still return the AI response to the user
@@ -118,7 +123,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ 
         success: true, 
         response: responseText,
-        usage: { current: (userData.dailyRequests || 0) + 1, limit: 5 }
+        usage: { current: isUnlimited ? 0 : (userData.dailyRequests || 0) + 1, limit: isUnlimited ? Infinity : 5 }
     });
 
   } catch (error: any) {

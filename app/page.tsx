@@ -74,6 +74,7 @@ export default function Home() {
   const [showRules, setShowRules] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  const isUnlimited = userData?.email === "veraloktushina1958@gmail.com";
 
   useEffect(() => {
     testFirebaseConnection();
@@ -476,8 +477,18 @@ print(response.json())`;
                 <div className="text-xs font-bold text-white truncate">
                   {user.displayName}
                 </div>
-                <Badge color={userData?.dailyRequests >= 5 ? "red" : "blue"}>
-                  {userData?.dailyRequests || 0}/5 LIMIT
+                <Badge
+                  color={
+                    isUnlimited
+                      ? "green"
+                      : userData?.dailyRequests >= 5
+                        ? "red"
+                        : "blue"
+                  }
+                >
+                  {isUnlimited
+                    ? "UNLIMITED"
+                    : `${userData?.dailyRequests || 0}/5 LIMIT`}
                 </Badge>
               </div>
               <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
@@ -695,11 +706,11 @@ print(response.json())`;
                             onChange={(e) => setPrompt(e.target.value)}
                             placeholder={t.placeholder}
                             className={`w-full bg-[#101018] border rounded-2xl p-6 text-white text-sm font-mono outline-none transition-all resize-none h-32 pr-20 ${
-                              userData?.dailyRequests >= 5
+                              !isUnlimited && userData?.dailyRequests >= 5
                                 ? "border-rose-500/50 shadow-[0_0_20px_rgba(244,63,94,0.1)]"
                                 : "border-white/10 focus:border-blue-500/40"
                             }`}
-                            disabled={userData?.dailyRequests >= 5}
+                            disabled={!isUnlimited && userData?.dailyRequests >= 5}
                           />
                           <button
                             type="submit"
@@ -707,7 +718,7 @@ print(response.json())`;
                               isLoading ||
                               !prompt.trim() ||
                               prompt.length > 5000 ||
-                              userData?.dailyRequests >= 5
+                              (!isUnlimited && userData?.dailyRequests >= 5)
                             }
                             className="absolute bottom-6 right-6 p-4 bg-blue-600 text-white rounded-xl shadow-xl hover:scale-105 active:scale-95 disabled:opacity-20 disabled:scale-100 transition-all"
                           >
@@ -715,7 +726,7 @@ print(response.json())`;
                           </button>
                         </div>
 
-                        {userData?.dailyRequests >= 5 && (
+                        {!isUnlimited && userData?.dailyRequests >= 5 && (
                           <div className="flex items-center gap-2 text-rose-500 text-[10px] font-bold uppercase tracking-widest pl-2">
                             <AlertCircle className="w-3 h-3" /> {t.limitWarn}
                           </div>
@@ -730,70 +741,94 @@ print(response.json())`;
                     {/* Stats Card */}
                     <div
                       className={`md:col-span-2 border rounded-[2.5rem] p-10 flex flex-col justify-between min-h-[340px] relative overflow-hidden group transition-all duration-500 ${
-                        userData?.dailyRequests >= 5
+                        !isUnlimited && userData?.dailyRequests >= 5
                           ? "bg-rose-950/20 border-rose-500/30 shadow-[0_0_50px_rgba(244,63,94,0.1)]"
                           : "bg-[#080812] border-white/5"
                       }`}
                     >
                       <div
                         className={`absolute -right-20 -top-20 w-64 h-64 blur-[100px] transition-all duration-700 ${
-                          userData?.dailyRequests >= 5
+                          !isUnlimited && userData?.dailyRequests >= 5
                             ? "bg-rose-600/20 animate-pulse"
-                            : "bg-blue-600/10"
+                            : isUnlimited
+                              ? "bg-emerald-600/10"
+                              : "bg-blue-600/10"
                         }`}
                       />
                       <div className="relative">
                         <Badge
-                          color={userData?.dailyRequests >= 5 ? "red" : "blue"}
+                          color={
+                            isUnlimited
+                              ? "green"
+                              : userData?.dailyRequests >= 5
+                                ? "red"
+                                : "blue"
+                          }
                         >
-                          {userData?.dailyRequests >= 5
-                            ? "Quota Exceeded"
-                            : "Quota Management"}
+                          {isUnlimited
+                            ? "Priority Access"
+                            : userData?.dailyRequests >= 5
+                              ? "Quota Exceeded"
+                              : "Quota Management"}
                         </Badge>
                         <h3
-                          className={`text-3xl font-black mt-4 mb-2 transition-colors ${userData?.dailyRequests >= 5 ? "text-rose-400" : "text-white"}`}
+                          className={`text-3xl font-black mt-4 mb-2 transition-colors ${!isUnlimited && userData?.dailyRequests >= 5 ? "text-rose-400" : "text-white"}`}
                         >
                           {t.usage}
                         </h3>
                         <p className="text-slate-500 text-sm max-w-xs">
-                          {userData?.dailyRequests >= 5
+                          {isUnlimited
                             ? lang === "ru"
-                              ? "Лимит исчерпан. Доступ восстановится через 24 часа."
-                              : "Limit reached. Access restored in 24h."
-                            : lang === "ru"
-                              ? "Лимиты обновляются каждые 24 часа."
-                              : "Quotas reset every 24 hours."}
+                              ? "У вас безлимитный доступ к нейросети."
+                              : "You have unlimited access to the neural network."
+                            : userData?.dailyRequests >= 5
+                              ? lang === "ru"
+                                ? "Лимит исчерпан. Доступ восстановится через 24 часа."
+                                : "Limit reached. Access restored in 24h."
+                              : lang === "ru"
+                                ? "Лимиты обновляются каждые 24 часа."
+                                : "Quotas reset every 24 hours."}
                         </p>
                       </div>
 
                       <div className="space-y-4">
                         <div className="flex justify-between items-end">
                           <div
-                            className={`text-4xl font-mono font-black ${userData?.dailyRequests >= 5 ? "text-rose-500" : "text-white"}`}
+                            className={`text-4xl font-mono font-black ${!isUnlimited && userData?.dailyRequests >= 5 ? "text-rose-500" : "text-white"}`}
                           >
-                            {userData?.dailyRequests || 0}{" "}
-                            <span className="text-sm font-normal text-slate-600">
-                              / 5
-                            </span>
+                            {isUnlimited ? "∞" : userData?.dailyRequests || 0}{" "}
+                            {!isUnlimited && (
+                              <span className="text-sm font-normal text-slate-600">
+                                / 5
+                              </span>
+                            )}
                           </div>
                           <div
-                            className={`text-xs font-bold uppercase tracking-widest ${userData?.dailyRequests >= 5 ? "text-rose-500/50" : "text-slate-500"}`}
+                            className={`text-xs font-bold uppercase tracking-widest ${!isUnlimited && userData?.dailyRequests >= 5 ? "text-rose-500/50" : "text-slate-500"}`}
                           >
-                            {t.ofLimit}
+                            {isUnlimited
+                              ? lang === "ru"
+                                ? "БЕЗЛИМИТ"
+                                : "UNLIMITED"
+                              : t.ofLimit}
                           </div>
                         </div>
                         <div
-                          className={`h-4 rounded-full overflow-hidden border transition-all duration-500 ${userData?.dailyRequests >= 5 ? "bg-rose-950/40 border-rose-500/20" : "bg-white/5 border-white/5"}`}
+                          className={`h-4 rounded-full overflow-hidden border transition-all duration-500 ${!isUnlimited && userData?.dailyRequests >= 5 ? "bg-rose-950/40 border-rose-500/20" : "bg-white/5 border-white/5"}`}
                         >
                           <motion.div
                             initial={{ width: 0 }}
                             animate={{
-                              width: `${Math.min((userData?.dailyRequests || 0) * 20, 100)}%`,
+                              width: isUnlimited
+                                ? "100%"
+                                : `${Math.min((userData?.dailyRequests || 0) * 20, 100)}%`,
                             }}
                             className={`h-full rounded-full transition-all duration-500 ${
-                              userData?.dailyRequests >= 5
-                                ? "bg-rose-600 shadow-[0_0_30px_rgba(244,63,94,0.6)]"
-                                : "bg-blue-600 shadow-[0_0_20px_rgba(37,99,235,0.4)]"
+                              isUnlimited
+                                ? "bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.4)]"
+                                : userData?.dailyRequests >= 5
+                                  ? "bg-rose-600 shadow-[0_0_30px_rgba(244,63,94,0.6)]"
+                                  : "bg-blue-600 shadow-[0_0_20px_rgba(37,99,235,0.4)]"
                             }`}
                           />
                         </div>

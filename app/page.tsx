@@ -269,6 +269,8 @@ export default function Home() {
       loginBtn: "Вход через Google",
       docsTitle: "Интеграция по API",
       docsSub: "Подключите GOH AI к вашему коду или Telegram-боту.",
+      support: "Гид и Поддержка",
+      community: "Сообщество",
     },
     en: {
       appName: "GOH NEURAL",
@@ -292,6 +294,8 @@ export default function Home() {
       loginBtn: "Sign in with Google",
       docsTitle: "API Integration",
       docsSub: "Connect GOH AI to your code or Telegram bot.",
+      support: "Guide & Support",
+      community: "Community",
     },
   };
 
@@ -357,6 +361,23 @@ print(response.json())`;
                         <ShieldAlert className="w-4 h-4 text-amber-500" />{" "}
                         {t.rules}
                       </button>
+                      <a
+                        href="https://t.me/GohNeural"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:bg-white/5 hover:text-white transition-all"
+                      >
+                        <Send className="w-4 h-4 text-blue-500" /> Telegram Channel
+                      </a>
+                      <a
+                        href="https://t.me/GohNeuralBot"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:bg-white/5 hover:text-white transition-all"
+                      >
+                        <MessageSquare className="w-4 h-4 text-emerald-500" />{" "}
+                        {t.support}
+                      </a>
                       <div className="h-px bg-white/5 my-1" />
                       <button
                         onClick={logout}
@@ -409,6 +430,36 @@ print(response.json())`;
               </div>
               <ChevronRight className="w-3.5 h-3.5 text-slate-700" />
             </button>
+
+            <div className="mt-8">
+              <div className="text-[10px] uppercase tracking-[0.2em] text-slate-600 font-bold mb-4">
+                {t.community}
+              </div>
+              <a
+                href="https://t.me/GohNeural"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-between w-full group py-2"
+              >
+                <div className="flex items-center gap-2 text-xs text-slate-500 group-hover:text-blue-500 transition-colors">
+                  <Send className="w-3.5 h-3.5" />
+                  Telegram Channel
+                </div>
+                <ExternalLink className="w-3.5 h-3.5 text-slate-700" />
+              </a>
+              <a
+                href="https://t.me/GohNeuralBot"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-between w-full group py-2"
+              >
+                <div className="flex items-center gap-2 text-xs text-slate-500 group-hover:text-emerald-500 transition-colors">
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  {t.support}
+                </div>
+                <ExternalLink className="w-3.5 h-3.5 text-slate-700" />
+              </a>
+            </div>
           </div>
         </nav>
 
@@ -466,6 +517,23 @@ print(response.json())`;
                       <ShieldAlert className="w-4 h-4 text-amber-500" />{" "}
                       {t.rules}
                     </button>
+                    <a
+                      href="https://t.me/GohNeural"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:bg-white/5 hover:text-white transition-all"
+                    >
+                      <Send className="w-4 h-4 text-blue-500" /> Telegram Channel
+                    </a>
+                    <a
+                      href="https://t.me/GohNeuralBot"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:bg-white/5 hover:text-white transition-all"
+                    >
+                      <MessageSquare className="w-4 h-4 text-emerald-500" />{" "}
+                      {t.support}
+                    </a>
                     <div className="h-px bg-white/5 my-1" />
                     <button
                       onClick={logout}

@@ -1,0 +1,58 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // --- Pillar 0: Global Safety Net ---
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Pillar 3: Reusable Helpers ---
+    function isSignedIn() { return request.auth != null; }
+    function isValidId(id) { return id is string && id.size() <= 128; }
+    function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    // --- User Profile Security ---
+    match /users/{userId} {
+      // Allow Public Get (for API Stats/Verification)
+      allow get: if isValidId(userId);
+
+      // Owner-specific list
+      allow list: if isOwner(userId);
+      
+      // Pillar 2: Validation Blueprint (Create)
+      allow create: if (isOwner(userId) || request.auth == null) && isValidUser(incoming()) && (
+        incoming().dailyRequests == 0 // Prevent self-elevation on creation
+      );
+
+      // Pillar 4: Action-Based Updates
+      allow update: if (
+        // Action: Owner self-update (API Keys, etc)
+        (isOwner(userId) && isValidUser(incoming()) && incoming().diff(existing()).affectedKeys().hasOnly(['apiKey', 'email', 'dailyRequests', 'lastReset'])) ||
+        // Action: Server-side Usage Increment (Anonymous)
+        (request.auth == null && incoming().diff(existing()).affectedKeys().hasOnly(['dailyRequests', 'lastReset']) && 
+         incoming().dailyRequests is number && incoming().dailyRequests <= 5)
+      );
+
+      // Pillar 2: Schema Blueprint
+      function isValidUser(data) {
+        return data.keys().hasAll(['email', 'dailyRequests', 'lastReset']) &&
+               data.email is string && data.email.size() <= 200 &&
+               data.dailyRequests is number &&
+               data.lastReset is string;
+      }
+    }
+
+    // --- API Key Mappings ---
+    match /apiKeys/{key} {
+      // Pillar 8: Secure Lookup
+      allow get: if isValidId(key);
+      
+      // Pillar 4: Identity Mapping
+      allow create: if isSignedIn() && incoming().uid == request.auth.uid;
+      allow delete: if isSignedIn() && existing().uid == request.auth.uid;
+    }
+  }
+}

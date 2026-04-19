@@ -1,115 +1,109 @@
-# 🌌 GOH API AI — Keyless Neural Power
+# 🌌 GOH NEURAL — Enterprise AI API Gateway
+
+<div align="center">
+  <img src="https://picsum.photos/seed/neural/1200/400" alt="GOH NEURAL Banner" width="100%" style="border-radius: 24px; margin-bottom: 20px;" />
+  <p><i>Neural Might. Instant Access. Infinite Potential.</i></p>
+</div>
 
 ---
 
-### 🔥 **Добро пожаловать в эру свободного ИИ.**
+## 📖 Обзор / Overview
 
-**GOH API AI** (v1.0-beta) — это ваш персональный шлюз в мир нейротехнологий. Мы убрали всё лишнее: сложные конфигурации, бесконечные API-ключи и бюрократию. 
+**GOH NEURAL** — это высокопроизводительный шлюз для доступа к передовым языковым моделям (LLM). Мы предоставляем разработчикам и энтузиастам безопасный, быстрый и удобный способ интеграции AI в любые приложения: от простых скриптов до сложных Telegram-ботов.
 
-Мы предоставляем **единый канал доступа** к высокопроизводительным языковым моделям, оптимизированный для мгновенной интеграции в ваши проекты.
-
----
-
-### ✨ **Почему это круто?**
-
-⚡️ **Квантовая скорость** — Оптимизированный REST-шлюз под управлением Vercel.
-🛡 **Keyless-принцип** — Мы уже позаботились об авторизации, вы концентрируетесь на созидании.
-🛠 **Zero Config** — Работает сразу после копирования примера кода.
-🤖 **Готовность к ботам** — Создайте своего нейро-ассистента за 5 минут.
+**GOH NEURAL** is a high-performance gateway for accessing advanced Large Language Models (LLMs). We provide developers and enthusiasts with a secure, fast, and convenient way to integrate AI into any application: from simple scripts to complex Telegram bots.
 
 ---
 
-### 🚀 **Магия интеграции (Python)**
+## ✨ Основные возможности / Key Features
 
-Используйте этот API как «мозговой центр» для любого вашего софта.
+- 🧠 **Neural Terminal**: Интерактивный веб-терминал в стиле Glassmorphism для быстрого тестирования запросов.
+- 🔑 **API Key Management**: Безопасная генерация и управление ключами доступа в личном кабинете.
+- 📉 **Quota Tracking**: Встроенная система мониторинга суточных лимитов и визуальный дашборд использования.
+- 🛡️ **Security First**: Интеграция с Firebase Auth (Google Login) и защищенные правила доступа Firestore.
+- ⚡ **Developer Friendly**: Простой REST API, поддерживающий любые языки программирования.
 
+---
+
+## 🛠️ Техническая спецификация / Specs
+
+- **Base URL**: `https://ais-dev-a4ewc3zratg3rdufsx7klc-6560868183.us-west2.run.app`
+- **Daily Limit**: 5 запросов в сутки / requests per day.
+- **Character Limit**: 5,000 символов на запрос / characters per prompt.
+- **Model**: Qwen 3.6 Plus (High-performance reasoning).
+
+---
+
+## 🚀 Быстрый старт / Quick Start
+
+### 1. Получение доступа / Access
+Войдите через Google на главной странице, перейдите в раздел **"Profile"** и создайте свой **API Key**.
+
+### 2. Интеграция (Python Example)
 ```python
 import requests
 
-# Ваш портал в нейросеть
-API_ENDPOINT = "https://goh-api-ai-v5yn.vercel.app/api/chat"
+# Ваш персональный ключ из профиля
+API_KEY = "goh_your_unique_key_here"
+API_URL = "https://your-deployment-url.run.app/api/chat"
 
-def ask_ai(question):
-    try:
-        # Простой POST-запрос — и никакой боли с токенами
-        res = requests.post(API_ENDPOINT, json={"prompt": question})
-        return res.json().get("response", "Пустота...")
-    except Exception as e:
-        return f"🚨 Ошибка шлюза: {e}"
+payload = {
+    "prompt": "Привет, GOH AI! Расскажи о квантовых компьютерах за 100 слов."
+}
 
-# Ваш первый вопрос:
-print(ask_ai("Привет! Ты готов к работе?"))
+headers = {
+    "X-API-Key": API_KEY,
+    "Content-Type": "application/json"
+}
+
+response = requests.post(API_URL, json=payload, headers=headers)
+print(response.json()['response'])
 ```
 
----
-
-### 🤖 **Ваш Telegram-Бот (Beta)**
-
-Хотите своего ИИ-ассистента в кармане? Запускайте его за 3 шага.
-
-1. Установите базу: `pip install telebot requests`
-2. Вставьте токен от [@BotFather](https://t.me/botfather).
-3. Запустите этот скрипт:
-
+### 3. Telegram Bot (telebot)
 ```python
-import telebot # pip install pyTelegramBotAPI
+import telebot
 import requests
 
-bot = telebot.TeleBot("ВАШ_TOKEN_ОТ_BOTFATHER")
-API = "https://goh-api-ai-v5yn.vercel.app/api/chat"
+bot = telebot.TeleBot("YOUR_TELEGRAM_TOKEN")
+GOH_API = "https://your-deployment-url.run.app/api/chat"
+GOH_KEY = "goh_your_key"
 
-@bot.message_handler(commands=['start'])
-def start(m): bot.reply_to(m, "Привет! Я GOH AI. Слушаю тебя.")
+@bot.message_handler(func=lambda m: True)
+def handle_message(message):
+    res = requests.post(
+        GOH_API, 
+        json={"prompt": message.text}, 
+        headers={"X-API-Key": GOH_KEY}
+    ).json()
+    
+    bot.reply_to(message, res.get("response", res.get("error")))
 
-@bot.message_handler(func=lambda _: True)
-def chat(m):
-    # Магия происходит здесь
-    ans = requests.post(API, json={"prompt": m.text}).json().get("response")
-    bot.reply_to(m, ans)
-
-if __name__ == "__main__":
-    bot.infinity_polling()
+bot.infinity_polling()
 ```
 
 ---
 
-### 📚 **Глубокая документация**
+## 🛡️ Безопасность / Security
 
-#### 💡 Принципы работы
-Система работает на архитектуре REST API. Вы отправляете JSON-объект, получаете JSON-ответ. Никаких state-менеджеров, никакого сложного API клиента.
-
-#### ⚙️ Эндпоинт (POST)
-`https://goh-api-ai-v5yn.vercel.app/api/chat`
-
-**Payload:**
-```json
-{
-  "prompt": "Ваш вопрос здесь"
-}
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "response": "Ответ нейросети"
-}
-```
+Ваши данные защищены с помощью:
+1. **Firebase Authentication**: Вход только через подтвержденные Google-аккаунты.
+2. **Firestore Rules (8 Pillars)**: Строгая валидация схем данных и невозможность подделки UID.
+3. **Backend Validation**: Тройная проверка лимитов, авторизации и длины текста на стороне сервера.
 
 ---
 
-### ⚠️ **Правила "ИИ-этикета"**
+## 📦 Стек технологий / Tech Stack
 
-*   **Будьте вежливы к серверу:** Не устраивайте DDoS-атаки своему же API.
-*   **Безопасность:** Не передавайте через наши API паспортные данные, пароли или секретные ключи.
-*   **Beta-статус:** `1.0-beta` означает, что мы постоянно учимся. Если API "задумался" — просто повторите запрос.
+- **Frontend**: Next.js 15 (App Router), React 19, Tailwind CSS v4, Motion (framer-motion).
+- **Backend**: Next.js API Routes, Firebase SDK.
+- **Database/Auth**: Firebase Firestore & Firebase Auth.
+- **Icons**: Lucide React.
+- **Typography**: Inter & JetBrains Mono.
 
 ---
 
-### 🌐 **Быстрый старт**
-*   **URL:** [https://goh-api-ai-v5yn.vercel.app](https://goh-api-ai-v5yn.vercel.app)
-*   **Окружение:** Vercel Runtime
-*   **Поддержка:** Создано для тех, кто строит будущее.
-
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-*GOH API AI: Нейронная мощь, доступная каждому.* 🌌
+<div align="center">
+  <p>Создано для тех, кто строит будущее. / Built for those who build the future.</p>
+  <p><b>GOH NEURAL &copy; 2026</b></p>
+</div>

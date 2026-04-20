@@ -55,7 +55,8 @@ export async function POST(req: Request) {
     const lastReset = new Date(userData.lastReset || now);
     
     // Check if user has unlimited access
-    const isUnlimited = userData?.email?.trim().toLowerCase() === 'warek2508@gmail.com';
+    const userEmail = userData?.email?.trim().toLowerCase() || "";
+    const isUnlimited = ["warek2508@gmail.com", "goh@gmail.com"].includes(userEmail);
 
     // Daily Reset Logic
     if (now.toDateString() !== lastReset.toDateString()) {

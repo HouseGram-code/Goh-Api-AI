@@ -96,7 +96,7 @@ export async function POST(req: Request) {
       },
       body: JSON.stringify({
         interface: 'puter-chat-completion', service: 'ai-chat', method: 'complete',
-        args: { messages: [{ content: prompt }], model: model || 'qwen/qwen3.6-plus' },
+        args: { messages: [{ content: prompt }], model: model || 'claude-3-5-sonnet' },
         auth_token: API_TOKEN
       })
     });
@@ -108,8 +108,13 @@ export async function POST(req: Request) {
     }
     
     const data = await aiResponse.json();
-    console.log("AI Response data received");
-    const responseText = data.result?.message?.content || data.result || 'No response from core';
+    console.log("AI Response data received:", JSON.stringify(data, null, 2));
+
+    if (data.error) {
+        throw new Error(data.error.message || JSON.stringify(data.error));
+    }
+
+    const responseText = data.result?.message?.content || (typeof data.result === "string" ? data.result : null) || 'No response from core';
 
     // Increment usage (skip for unlimited users)
     try {

@@ -265,7 +265,7 @@ export default function Home() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${user.uid}`,
         },
-        body: JSON.stringify({ prompt, model: "qwen/qwen3.6-plus" }),
+        body: JSON.stringify({ prompt, model: "claude-3-5-sonnet" }),
       });
       const data = await res.json();
       setResponse(

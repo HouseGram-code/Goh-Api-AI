@@ -74,7 +74,7 @@ export default function Home() {
   const [showRules, setShowRules] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
-  const isUnlimited = userData?.email?.toLowerCase() === "warek2508@gmail.com";
+  const isUnlimited = userData?.email?.trim().toLowerCase() === "warek2508@gmail.com";
 
   useEffect(() => {
     testFirebaseConnection();
@@ -315,9 +315,9 @@ response = requests.post(API, json={"prompt": "Hello AI!"}, headers=HEADERS)
 print(response.json())`;
 
   return (
-    <div className="min-h-screen bg-[#020205] text-slate-200 font-sans selection:bg-blue-500/30 overflow-hidden flex flex-col md:flex-row">
+    <div className="min-h-screen bg-transparent text-slate-200 font-sans selection:bg-blue-500/30 overflow-hidden flex flex-col md:flex-row">
       {/* --- Sidebar (Desktop) / Header (Mobile) --- */}
-      <aside className="w-full md:w-72 bg-[#050510] border-b md:border-b-0 md:border-r border-white/5 flex flex-col z-40">
+      <aside className="w-full md:w-72 bg-[#050510]/60 backdrop-blur-3xl border-b md:border-b-0 md:border-r border-white/5 flex flex-col z-40">
         <div className="p-6 md:p-8 flex items-center justify-between md:flex-col md:items-start">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-[0_0_20px_rgba(37,99,235,0.4)]">
@@ -575,7 +575,7 @@ print(response.json())`;
       {/* --- Main Content --- */}
       <main className="flex-1 flex flex-col relative z-0 overflow-hidden">
         {/* Mobile Tabs */}
-        <div className="flex md:hidden bg-[#050510] border-b border-white/5 px-2 py-1 sticky top-0">
+        <div className="flex md:hidden bg-[#050510]/60 backdrop-blur-xl border-b border-white/5 px-2 py-1 sticky top-0 z-50">
           {["chat", "dashboard", "docs"].map((tab) => (
             <button
               key={tab}
@@ -620,7 +620,7 @@ print(response.json())`;
                 className="h-full max-w-5xl mx-auto flex flex-col"
               >
                 {activeTab === "chat" && (
-                  <div className="h-full flex flex-col bg-[#080812] border border-white/5 rounded-[2.5rem] relative overflow-hidden shadow-2xl">
+                  <div className="h-full flex flex-col bg-[#05050a]/80 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] relative overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
                     {/* Terminal Header */}
                     <div className="px-8 py-5 border-b border-white/5 flex items-center justify-between bg-white/5 backdrop-blur-md">
                       <div className="flex items-center gap-3">
@@ -713,7 +713,7 @@ print(response.json())`;
                             value={prompt}
                             onChange={(e) => setPrompt(e.target.value)}
                             placeholder={t.placeholder}
-                            className={`w-full bg-[#101018] border rounded-2xl p-6 text-white text-sm font-mono outline-none transition-all resize-none h-32 pr-20 ${
+                            className={`w-full bg-[#101018]/50 backdrop-blur-md border rounded-2xl p-6 text-white text-sm font-mono outline-none transition-all resize-none h-32 pr-20 ${
                               !isUnlimited && userData?.dailyRequests >= 5
                                 ? "border-rose-500/50 shadow-[0_0_20px_rgba(244,63,94,0.1)]"
                                 : isUnlimited
@@ -753,17 +753,19 @@ print(response.json())`;
                     {/* Stats Card */}
                     <div
                       className={`md:col-span-2 border rounded-[2.5rem] p-10 flex flex-col justify-between min-h-[340px] relative overflow-hidden group transition-all duration-500 ${
-                        !isUnlimited && userData?.dailyRequests >= 5
-                          ? "bg-rose-950/20 border-rose-500/30 shadow-[0_0_50px_rgba(244,63,94,0.1)]"
-                          : "bg-[#080812] border-white/5"
+                        isUnlimited
+                          ? "bg-emerald-950/10 border-emerald-500/20"
+                          : userData?.dailyRequests >= 5
+                            ? "bg-rose-950/20 border-rose-500/30 shadow-[0_0_50px_rgba(244,63,94,0.1)]"
+                            : "bg-[#080812] border-white/5"
                       }`}
                     >
                       <div
                         className={`absolute -right-20 -top-20 w-64 h-64 blur-[100px] transition-all duration-700 ${
-                          !isUnlimited && userData?.dailyRequests >= 5
-                            ? "bg-rose-600/20 animate-pulse"
-                            : isUnlimited
-                              ? "bg-emerald-600/10"
+                           isUnlimited
+                            ? "bg-emerald-600/10 animate-pulse"
+                            : userData?.dailyRequests >= 5
+                              ? "bg-rose-600/20 animate-pulse"
                               : "bg-blue-600/10"
                         }`}
                       />
@@ -784,11 +786,11 @@ print(response.json())`;
                               : "Quota Management"}
                         </Badge>
                         <h3
-                          className={`text-3xl font-black mt-4 mb-2 transition-colors ${!isUnlimited && userData?.dailyRequests >= 5 ? "text-rose-400" : "text-white"}`}
+                          className={`text-3xl font-black mt-4 mb-2 transition-colors ${isUnlimited ? "text-emerald-400" : userData?.dailyRequests >= 5 ? "text-rose-400" : "text-white"}`}
                         >
                           {t.usage}
                         </h3>
-                        <p className="text-slate-500 text-sm max-w-xs">
+                        <p className={`text-sm max-w-xs ${isUnlimited ? "text-emerald-500/70" : "text-slate-500"}`}>
                           {isUnlimited
                             ? lang === "ru"
                               ? "У вас безлимитный доступ к нейросети."
@@ -804,29 +806,29 @@ print(response.json())`;
                       </div>
 
                       <div className="space-y-4">
-                        <div className="flex justify-between items-end">
+                        <div className="flex justify-between items-end relative z-10">
                           <div
-                            className={`text-4xl font-mono font-black ${!isUnlimited && userData?.dailyRequests >= 5 ? "text-rose-500" : "text-white"}`}
+                            className={`text-5xl font-mono font-black ${isUnlimited ? "text-emerald-500" : userData?.dailyRequests >= 5 ? "text-rose-500" : "text-white"}`}
                           >
                             {isUnlimited ? "∞" : userData?.dailyRequests || 0}{" "}
                             {!isUnlimited && (
-                              <span className="text-sm font-normal text-slate-600">
+                              <span className="text-xl font-normal text-slate-600">
                                 / 5
                               </span>
                             )}
                           </div>
                           <div
-                            className={`text-xs font-bold uppercase tracking-widest ${!isUnlimited && userData?.dailyRequests >= 5 ? "text-rose-500/50" : "text-slate-500"}`}
+                            className={`text-xs font-bold uppercase tracking-widest ${isUnlimited ? "text-emerald-500" : userData?.dailyRequests >= 5 ? "text-rose-500/50" : "text-slate-500"}`}
                           >
                             {isUnlimited
                               ? lang === "ru"
-                                ? "БЕЗЛИМИТ"
-                                : "UNLIMITED"
+                                ? "БЕЗЛИМИТНЫЙ ДОСТУП"
+                                : "UNLIMITED ACCESS"
                               : t.ofLimit}
                           </div>
                         </div>
                         <div
-                          className={`h-4 rounded-full overflow-hidden border transition-all duration-500 ${!isUnlimited && userData?.dailyRequests >= 5 ? "bg-rose-950/40 border-rose-500/20" : "bg-white/5 border-white/5"}`}
+                          className={`h-4 rounded-full overflow-hidden border transition-all duration-500 relative z-10 ${isUnlimited ? "bg-emerald-950/40 border-emerald-500/20" : userData?.dailyRequests >= 5 ? "bg-rose-950/40 border-rose-500/20" : "bg-white/5 border-white/5"}`}
                         >
                           <motion.div
                             initial={{ width: 0 }}
@@ -837,7 +839,7 @@ print(response.json())`;
                             }}
                             className={`h-full rounded-full transition-all duration-500 ${
                               isUnlimited
-                                ? "bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.4)]"
+                                ? "bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.5)]"
                                 : userData?.dailyRequests >= 5
                                   ? "bg-rose-600 shadow-[0_0_30px_rgba(244,63,94,0.6)]"
                                   : "bg-blue-600 shadow-[0_0_20px_rgba(37,99,235,0.4)]"

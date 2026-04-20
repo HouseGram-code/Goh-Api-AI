@@ -97,6 +97,11 @@ export default function Home() {
               createdAt: new Date().toISOString(),
             });
             console.log("Profile created successfully.");
+          } else {
+            const data = snap.data();
+            if (!data.email && currentUser.email) {
+              await setDoc(userRef, { email: currentUser.email }, { merge: true });
+            }
           }
         } catch (e: any) {
           console.error("Profile check/create failed:", e.code, e.message);
@@ -221,7 +226,7 @@ export default function Home() {
       !prompt.trim() ||
       !user ||
       prompt.length > 5000 ||
-      userData?.dailyRequests >= 5
+      (!isUnlimited && userData?.dailyRequests >= 5)
     )
       return;
     setIsLoading(true);
@@ -625,6 +630,9 @@ print(response.json())`;
                           <div className="w-3 h-3 rounded-full bg-emerald-500/50" />
                         </div>
                         <Badge color="blue">NEURAL v1.0 BETA</Badge>
+                        {isUnlimited && (
+                           <Badge color="green">PRIORITY ACCESS</Badge>
+                        )}
                       </div>
                       <div className="flex items-center gap-4">
                         <div
@@ -708,7 +716,9 @@ print(response.json())`;
                             className={`w-full bg-[#101018] border rounded-2xl p-6 text-white text-sm font-mono outline-none transition-all resize-none h-32 pr-20 ${
                               !isUnlimited && userData?.dailyRequests >= 5
                                 ? "border-rose-500/50 shadow-[0_0_20px_rgba(244,63,94,0.1)]"
-                                : "border-white/10 focus:border-blue-500/40"
+                                : isUnlimited
+                                  ? "border-emerald-500/20 focus:border-emerald-500/40 focus:shadow-[0_0_30px_rgba(16,185,129,0.15)]"
+                                  : "border-white/10 focus:border-blue-500/40"
                             }`}
                             disabled={!isUnlimited && userData?.dailyRequests >= 5}
                           />
@@ -720,7 +730,9 @@ print(response.json())`;
                               prompt.length > 5000 ||
                               (!isUnlimited && userData?.dailyRequests >= 5)
                             }
-                            className="absolute bottom-6 right-6 p-4 bg-blue-600 text-white rounded-xl shadow-xl hover:scale-105 active:scale-95 disabled:opacity-20 disabled:scale-100 transition-all"
+                            className={`absolute bottom-6 right-6 p-4 text-white rounded-xl shadow-xl hover:scale-105 active:scale-95 disabled:opacity-20 disabled:scale-100 transition-all ${
+                              isUnlimited ? "bg-emerald-600 hover:bg-emerald-500" : "bg-blue-600 hover:bg-blue-500"
+                            }`}
                           >
                             <Send className="w-5 h-5" />
                           </button>

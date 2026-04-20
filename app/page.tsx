@@ -99,7 +99,9 @@ export default function Home() {
             console.log("Profile created successfully.");
           } else {
             const data = snap.data();
-            if (!data.email && currentUser.email) {
+            // If email is missing OR it's the backend placeholder 'authenticated_user', sync it!
+            if (data.email !== currentUser.email && currentUser.email) {
+              console.log("Syncing actual user email to database");
               await setDoc(userRef, { email: currentUser.email }, { merge: true });
             }
           }
@@ -355,8 +357,12 @@ print(response.json())`;
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 10 }}
-                      className="absolute top-full right-0 mt-2 w-56 bg-[#101018] border border-white/10 rounded-2xl p-2 shadow-2xl overflow-hidden shadow-blue-500/10 z-50"
+                      className="absolute top-full right-0 mt-2 w-56 bg-[#101018] border border-white/10 rounded-2xl p-2 shadow-2xl overflow-hidden shadow-blue-500/10 z-50 flex flex-col"
                     >
+                      <div className="px-3 py-2 border-b border-white/10 mb-1">
+                        <div className="text-xs font-bold text-white truncate">{user.displayName}</div>
+                        <div className="text-[9px] text-slate-500 font-mono truncate">{user.email || userData?.email}</div>
+                      </div>
                       <button
                         onClick={() => {
                           setShowRules(true);
@@ -481,6 +487,9 @@ print(response.json())`;
               <div className="flex-1 overflow-hidden">
                 <div className="text-xs font-bold text-white truncate">
                   {user.displayName}
+                </div>
+                <div className="text-[9px] text-slate-500 font-mono truncate mb-1">
+                  {user.email || userData?.email}
                 </div>
                 <Badge
                   color={

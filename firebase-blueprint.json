@@ -1,0 +1,32 @@
+{
+  "entities": {
+    "user": {
+      "title": "User",
+      "description": "User profile and usage stats",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "dailyRequests": { "type": "number" },
+        "lastReset": { "type": "string", "format": "date-time" },
+        "apiKey": { "type": "string" }
+      },
+      "required": ["email", "dailyRequests", "lastReset"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "user",
+      "description": "Stores user profile and daily request count"
+    },
+    "apiKeys/{apiKey}": {
+      "schema": {
+        "title": "API Key Mapping",
+        "type": "object",
+        "properties": {
+          "uid": { "type": "string" }
+        }
+      },
+      "description": "Maps API key to User UID for fast lookup"
+    }
+  }
+}

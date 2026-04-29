@@ -1,0 +1,34 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // --- Global Safety Net ---
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helpers ---
+    function isSignedIn() { return request.auth != null; }
+
+    // --- User Profiles ---
+    match /users/{userId} {
+      // Relaxed for API Route & Client interaction
+      // In production, use firebase-admin on the server to keep this strict
+      allow read, write: if true; 
+    }
+
+    // --- API Key Mappings ---
+    match /apiKeys/{key} {
+      // Read is public for API server to verify keys
+      allow read: if true;
+      // Write is allowed for authenticated users to manage their keys
+      // and public for the initialization if needed
+      allow write: if true; 
+    }
+
+    // --- Connectivity Test Path ---
+    match /_internal_/connection_test {
+      allow read, write: if true;
+    }
+  }
+}

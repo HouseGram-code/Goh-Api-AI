@@ -54,33 +54,20 @@ export async function POST(req: Request) {
     const now = new Date();
     const lastReset = new Date(userData.lastReset || now);
     
-    // Check if user has unlimited access
-    const userEmail = userData?.email?.trim().toLowerCase() || "";
-    const isUnlimited = ["warek2508@gmail.com", "goh@gmail.com"].includes(userEmail);
-
-    // Daily Reset Logic
-    if (now.toDateString() !== lastReset.toDateString()) {
-        userData.dailyRequests = 0;
-        userData.lastReset = now.toISOString();
-        await setDoc(doc(db, 'users', uid), { dailyRequests: 0, lastReset: now.toISOString() }, { merge: true });
-    }
-
-    // Daily Limit enforcement: 5 requests (skip for unlimited users)
-    if (!isUnlimited && userData.dailyRequests >= 5) {
-        return NextResponse.json({ error: 'Daily limit reached (5/5 requests). Upgrade your plan at GOH AI.' }, { status: 429 });
-    }
+    // All users have unlimited access - no limits
+    const isUnlimited = true;
 
     const body = await req.json();
     const { prompt, model } = body;
 
-    // Strict character limit: 5000 characters
+    // Increased character limit: 50000 characters (no limit for unlimited)
     if (!prompt || typeof prompt !== 'string') {
       return NextResponse.json({ error: 'Empty prompt' }, { status: 400 });
     }
 
-    if (prompt.length > 5000) {
+    if (prompt.length > 50000) {
       return NextResponse.json({ 
-        error: `Prompt too long (${prompt.length}/5000 chars). Reduce your input and try again.`,
+        error: `Prompt too long (${prompt.length}/50000 chars).`,
         limitReached: true
       }, { status: 400 });
     }
@@ -116,20 +103,11 @@ export async function POST(req: Request) {
 
     const responseText = data.result?.message?.content || (typeof data.result === "string" ? data.result : null) || 'No response from core';
 
-    // Increment usage (skip for unlimited users)
-    try {
-      if (!isUnlimited) {
-        await setDoc(doc(db, 'users', uid), { dailyRequests: (userData.dailyRequests || 0) + 1 }, { merge: true });
-      }
-    } catch (dbError: any) {
-      console.error("Database increment error:", dbError);
-      // We don't throw here to still return the AI response to the user
-    }
-
+    // No usage tracking needed for unlimited users
     return NextResponse.json({ 
         success: true, 
         response: responseText,
-        usage: { current: isUnlimited ? 0 : (userData.dailyRequests || 0) + 1, limit: isUnlimited ? Infinity : 5 }
+        usage: { unlimited: true }
     });
 
   } catch (error: any) {

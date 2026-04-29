@@ -77,7 +77,7 @@ export default function Home() {
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const userEmail = userData?.email?.trim().toLowerCase() || "";
-  const isUnlimited = ["warek2508@gmail.com", "goh@gmail.com"].includes(userEmail);
+  const isUnlimited = true; // All users have unlimited access
 
   const [authEmail, setAuthEmail] = useState("");
   const [authPassword, setAuthPassword] = useState("");
@@ -249,12 +249,7 @@ export default function Home() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (
-      !prompt.trim() ||
-      !user ||
-      prompt.length > 5000 ||
-      (!isUnlimited && userData?.dailyRequests >= 5)
-    )
+    if (!prompt.trim() || !user || prompt.length > 50000) // Increased to 50k chars, unlimited requests
       return;
     setIsLoading(true);
     setResponse("");
@@ -334,11 +329,39 @@ export default function Home() {
 
   const t = translations[lang];
 
-  const codeSnippet = `import requests
-API = "https://${typeof window !== "undefined" ? window.location.host : "goh-ai"}/api/chat"
-HEADERS = {"X-API-Key": "${userData?.apiKey || "YOUR_KEY_HERE"}"}
+  const codeSnippet = `# GOH AI - All APIs are FREE and UNLIMITED!
 
-response = requests.post(API, json={"prompt": "Hello AI!"}, headers=HEADERS)
+# 1. Main API (Claude 3.5 Sonnet)
+import requests
+API = "https://your-domain.com/api/chat"
+HEADERS = {"X-API-Key": "YOUR_KEY_HERE"}
+response = requests.post(API, json={"prompt": "Hello!"}, headers=HEADERS)
+print(response.json())
+
+# 2. G4F API (Free - Multiple Models)
+# Models: llama-3.3-70b, gpt-4o-mini, deepseek-chat, etc.
+import requests
+API = "https://your-domain.com/api/chat-g4f"
+response = requests.post(API, json={
+  "prompt": "Hello!",
+  "model": "auto",  # or "llama-3.3-70b-versatile"
+  "provider": "auto"  # or "groq", "pollinations", "deepseek"
+})
+print(response.json())
+
+# 3. Pollinations API (Free - Very Stable)
+import requests
+API = "https://your-domain.com/api/chat-pollinations"
+response = requests.post(API, json={
+  "prompt": "Hello!",
+  "model": "openai"  # or "anthropic", "deepseek"
+})
+print(response.json())
+
+# 4. Universal Free API (Auto-fallback)
+import requests
+API = "https://your-domain.com/api/chat-free"
+response = requests.post(API, json={"prompt": "Hello!"})
 print(response.json())`;
 
   return (
@@ -853,52 +876,25 @@ print(response.json())`;
                         }`}
                       />
                       <div className="relative">
-                        <Badge
-                          color={
-                            isUnlimited
-                              ? "green"
-                              : userData?.dailyRequests >= 5
-                                ? "red"
-                                : "blue"
-                          }
-                        >
-                          {isUnlimited
-                            ? "Priority Access"
-                            : userData?.dailyRequests >= 5
-                              ? "Quota Exceeded"
-                              : "Quota Management"}
+                        <Badge color="green">
+                          UNLIMITED
                         </Badge>
                         <h3
                           className={`text-3xl font-black mt-4 mb-2 transition-colors ${isUnlimited ? "text-emerald-400" : userData?.dailyRequests >= 5 ? "text-rose-400" : "text-white"}`}
                         >
                           {t.usage}
                         </h3>
-                        <p className={`text-sm max-w-xs ${isUnlimited ? "text-emerald-500/70" : "text-slate-500"}`}>
-                          {isUnlimited
-                            ? lang === "ru"
-                              ? "У вас безлимитный доступ к нейросети."
-                              : "You have unlimited access to the neural network."
-                            : userData?.dailyRequests >= 5
-                              ? lang === "ru"
-                                ? "Лимит исчерпан. Доступ восстановится через 24 часа."
-                                : "Limit reached. Access restored in 24h."
-                              : lang === "ru"
-                                ? "Лимиты обновляются каждые 24 часа."
-                                : "Quotas reset every 24 hours."}
+                        <p className="text-sm max-w-xs text-emerald-500/70">
+                          {lang === "ru"
+                            ? "У вас безлимитный доступ к нейросети."
+                            : "You have unlimited access to the neural network."}
                         </p>
                       </div>
 
                       <div className="space-y-4">
                         <div className="flex justify-between items-end relative z-10">
-                          <div
-                            className={`text-5xl font-mono font-black ${isUnlimited ? "text-emerald-500" : userData?.dailyRequests >= 5 ? "text-rose-500" : "text-white"}`}
-                          >
-                            {isUnlimited ? "∞" : userData?.dailyRequests || 0}{" "}
-                            {!isUnlimited && (
-                              <span className="text-xl font-normal text-slate-600">
-                                / 5
-                              </span>
-                            )}
+                          <div className="text-5xl font-mono font-black text-emerald-500">
+                            ∞
                           </div>
                           <div
                             className={`text-xs font-bold uppercase tracking-widest ${isUnlimited ? "text-emerald-500" : userData?.dailyRequests >= 5 ? "text-rose-500/50" : "text-slate-500"}`}
@@ -995,21 +991,26 @@ print(response.json())`;
 
                       <div className="space-y-6">
                         {[
-                          { title: "Endpoint", value: "POST /api/chat" },
-                          { title: "Headers", value: "X-API-Key: goh_..." },
-                          { title: "Body", value: '{"prompt": "string"}' },
+                          { title: "Main API", value: "POST /api/chat", desc: "Claude 3.5 Sonnet" },
+                          { title: "G4F API", value: "POST /api/chat-g4f", desc: "Free - Multiple models" },
+                          { title: "Pollinations", value: "POST /api/chat-pollinations", desc: "Free - Very stable" },
+                          { title: "MiniMax", value: "POST /api/chat-minimax", desc: "Via Puter.js" },
+                          { title: "Universal", value: "POST /api/chat-free", desc: "Auto-fallback" },
                         ].map((item) => (
                           <div
                             key={item.title}
                             className="flex items-center gap-6"
                           >
-                            <div className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                             <div>
                               <div className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
                                 {item.title}
                               </div>
-                              <div className="text-sm font-mono text-blue-400">
+                              <div className="text-sm font-mono text-emerald-400">
                                 {item.value}
+                              </div>
+                              <div className="text-[10px] text-slate-500">
+                                {item.desc}
                               </div>
                             </div>
                           </div>
@@ -1051,24 +1052,20 @@ print(response.json())`;
           </AnimatePresence>
         </div>
 
-        {/* Global Floating Hint */}
+        {/* Global Floating Hint - Unlimited */}
         {user && activeTab !== "dashboard" && (
-          <div className="absolute top-10 right-10 hidden lg:flex items-center gap-4 bg-white/5 backdrop-blur-md border border-white/10 py-2 px-4 rounded-2xl">
+          <div className="absolute top-10 right-10 hidden lg:flex items-center gap-4 bg-emerald-500/10 backdrop-blur-md border border-emerald-500/20 py-2 px-4 rounded-2xl">
             <div className="flex flex-col items-end">
-              <div className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">
+              <div className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">
                 {t.usage}
               </div>
-              <div className="text-xs font-mono text-white font-bold">
-                {userData?.dailyRequests || 0} / 5
+              <div className="text-xs font-mono text-emerald-400 font-bold">
+                UNLIMITED
               </div>
             </div>
-            <div className="w-10 h-10 rounded-full border-2 border-white/10 p-0.5">
-              <div className="w-full h-full rounded-full bg-blue-600/20 flex items-center justify-center overflow-hidden">
-                <motion.div
-                  initial={{ scaleY: 0 }}
-                  animate={{ scaleY: (userData?.dailyRequests || 0) / 5 }}
-                  className={`w-full h-full origin-bottom ${userData?.dailyRequests >= 5 ? "bg-rose-600" : "bg-blue-600"}`}
-                />
+            <div className="w-10 h-10 rounded-full border-2 border-emerald-500/20 p-0.5">
+              <div className="w-full h-full rounded-full bg-emerald-500/20 flex items-center justify-center">
+                <span className="text-lg">∞</span>
               </div>
             </div>
           </div>
@@ -1113,16 +1110,16 @@ print(response.json())`;
                     title: lang === "ru" ? "Квота" : "Quota",
                     desc:
                       lang === "ru"
-                        ? "5 запросов в сутки. Лимит сбрасывается каждые 24 часа."
-                        : "5 requests per day. Limit resets every 24 hours.",
+                        ? "Безлимитный доступ. Без ограничений по запросам."
+                        : "Unlimited access. No request limits.",
                   },
                   {
                     icon: TerminalIcon,
                     title: lang === "ru" ? "Символы" : "Characters",
                     desc:
                       lang === "ru"
-                        ? "Лимит 5,000 символов на одно сообщение."
-                        : "Limit of 5,000 characters per single message.",
+                        ? "Лимит 50,000 символов на одно сообщение."
+                        : "Limit of 50,000 characters per single message.",
                   },
                   {
                     icon: ShieldAlert,

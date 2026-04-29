@@ -4,18 +4,21 @@
  */
 
 // Provider endpoints
-const PROVIDERS = {
+const PROVIDERS: Record<string, string> = {
   G4F_AUTO: 'https://g4f.space/api/auto',
   G4F_GROQ: 'https://g4f.space/api/groq',
   G4F_POLLINATIONS: 'https://g4f.space/api/pollinations',
   G4F_NVIDIA: 'https://g4f.space/api/nvidia',
   G4F_GEMINI: 'https://g4f.space/api/gemini',
   G4F_GROK: 'https://g4f.space/api/grok',
+  G4F_DEEPSEEK: 'https://g4f.space/api/deepseek',
+  G4F_QWEN: 'https://g4f.space/api/qwen',
+  G4F_MISTRAL: 'https://g4f.space/api/mistral',
   POLLINATIONS_AI: 'https://text.pollinations.ai',
-} as const;
+};
 
 // Available models
-export const MODELS = {
+export const MODELS: Record<string, string> = {
   AUTO: 'auto',
   // Groq
   LLAMA_3_3_70B: 'llama-3.3-70b-versatile',
@@ -38,7 +41,9 @@ export const MODELS = {
   GROK_3: 'grok-3-fast',
   // Qwen
   QWEN_2_5: 'qwen-2.5-72b-instruct',
-} as const;
+  // Mistral
+  MISTRAL: 'mistral-small-3.1',
+};
 
 export type ModelType = typeof MODELS[keyof typeof MODELS];
 export type ProviderType = keyof typeof PROVIDERS;

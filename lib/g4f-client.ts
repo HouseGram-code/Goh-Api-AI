@@ -9,39 +9,51 @@
  */
 
 // Free endpoints (no API key required)
-const G4F_ENDPOINTS = {
+const G4F_ENDPOINTS: Record<string, string> = {
   AUTO: 'https://g4f.space/api/auto',
   GROQ: 'https://g4f.space/api/groq',
   POLLINATIONS: 'https://g4f.space/api/pollinations',
   NVIDIA: 'https://g4f.space/api/nvidia',
   GEMINI: 'https://g4f.space/api/gemini',
   GROK: 'https://g4f.space/api/grok',
-} as const;
+  DEEPSEEK: 'https://g4f.space/api/deepseek',
+  QWEN: 'https://g4f.space/api/qwen',
+  MISTRAL: 'https://g4f.space/api/mistral',
+};
 
 // Available models
-export const G4F_MODELS = {
+export const G4F_MODELS: Record<string, string> = {
   AUTO: 'auto',
   // Groq (very fast, free)
   LLAMA_3_1_70B: 'llama-3.1-70b-versatile',
   LLAMA_3_1_8B: 'llama-3.1-8b-instant',
   MIXTRAL_8X7B: 'mixtral-8x7b-32768',
+  LLAMA_3_3_70B: 'llama-3.3-70b-versatile',
   // OpenAI
   GPT_4O: 'gpt-4o',
   GPT_4O_MINI: 'gpt-4o-mini',
   // Claude
   CLAUDE_3_OPUS: 'claude-3-opus',
   CLAUDE_3_SONNET: 'claude-3-sonnet',
+  CLAUDE_3_5_SONNET: 'claude-3.5-sonnet',
   // Google
   GEMINI_PRO: 'gemini-pro',
   GEMINI_FLASH: 'gemini-flash',
+  GEMINI_2_FLASH: 'gemini-2.0-flash-exp',
   // DeepSeek
   DEEPSEEK_CHAT: 'deepseek-chat',
+  DEEPSEEK_R1: 'deepseek-reasoner',
   // Grok
   GROK_4: 'grok-4-fast-non-reasoning',
-} as const;
+  GROK_3: 'grok-3-fast',
+  // Qwen
+  QWEN_2_5: 'qwen-2.5-72b-instruct',
+  // Mistral
+  MISTRAL: 'mistral-small-3.1',
+};
 
 export type G4FModel = typeof G4F_MODELS[keyof typeof G4F_MODELS];
-export type G4FProvider = 'auto' | 'groq' | 'pollinations' | 'nvidia' | 'gemini' | 'grok';
+export type G4FProvider = 'auto' | 'groq' | 'pollinations' | 'nvidia' | 'gemini' | 'grok' | 'deepseek' | 'qwen' | 'mistral';
 
 export interface G4FChatOptions {
   model?: G4FModel;

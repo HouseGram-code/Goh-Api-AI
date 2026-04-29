@@ -22,12 +22,12 @@ export interface PuterChatResponse {
 }
 
 // Available MiniMax models
-export const MINIMAX_MODELS = {
+export const MINIMAX_MODELS: Record<string, string> = {
   M2_7: 'minimax/minimax-m2.7',
   M2_5: 'minimax/minimax-m2.5',
   M2_1: 'minimax/minimax-m2.1',
   M2_HER: 'minimax/minimax-m2-her',
-} as const;
+};
 
 /**
  * Chat with MiniMax via Puter.js
